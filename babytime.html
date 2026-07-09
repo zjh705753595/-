@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>宝宝时间</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fff7f2;
+      --panel: #ffffff;
+      --text: #2d2522;
+      --muted: #6f615c;
+      --accent: #ff5f7e;
+      --accent-dark: #e84a6b;
+      --ring: rgba(255, 95, 126, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+      background:
+        radial-gradient(circle at 20% 16%, rgba(255, 177, 193, 0.35), transparent 28%),
+        radial-gradient(circle at 82% 78%, rgba(255, 211, 160, 0.36), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    main {
+      width: min(92vw, 460px);
+      padding: 34px 24px 26px;
+      border: 1px solid rgba(255, 143, 161, 0.28);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 20px 50px rgba(174, 89, 99, 0.16);
+      text-align: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .message {
+      margin: 0;
+      font-size: clamp(24px, 6vw, 36px);
+      font-weight: 700;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .time {
+      display: block;
+      margin-top: 4px;
+      color: var(--accent-dark);
+      font-size: clamp(22px, 5.4vw, 32px);
+      overflow-wrap: anywhere;
+    }
+
+    button {
+      width: min(100%, 260px);
+      min-height: 52px;
+      margin-top: 34px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 24px var(--ring);
+      font: inherit;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      background: var(--accent-dark);
+      box-shadow: 0 6px 16px var(--ring);
+    }
+
+    .fallback {
+      display: none;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    body.done main {
+      padding-top: 38px;
+    }
+
+    body.done .message,
+    body.done button {
+      display: none;
+    }
+
+    body.done .fallback {
+      display: block;
+      font-size: 20px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="message">
+      你好呀宝宝，<br>
+      我来告诉你现在是<br>
+      <span class="time" id="timeText"></span>
+    </p>
+    <button id="closeButton" type="button">好了，我知道了</button>
+    <p class="fallback">好啦，可以关闭这个页面啦。</p>
+  </main>
+
+  <script>
+    const timeText = document.getElementById("timeText");
+    const closeButton = document.getElementById("closeButton");
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function updateTime() {
+      const now = new Date();
+      timeText.textContent =
+        `${now.getFullYear()}年${pad(now.getMonth() + 1)}月${pad(now.getDate())}日` +
+        `${pad(now.getHours())}时${pad(now.getMinutes())}分${pad(now.getSeconds())}秒`;
+    }
+
+    function closePage() {
+      if (typeof WeixinJSBridge !== "undefined") {
+        WeixinJSBridge.call("closeWindow");
+      }
+
+      window.close();
+
+      setTimeout(() => {
+        if (history.length > 1) {
+          history.back();
+        }
+      }, 120);
+
+      setTimeout(() => {
+        document.body.classList.add("done");
+      }, 380);
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+    closeButton.addEventListener("click", closePage);
+  </script>
+</body>
+</html>
